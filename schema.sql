@@ -1,9 +1,9 @@
 -- Database Schema for Tech Hub
-CREATE DATABASE tech_hub_db;
+CREATE DATABASE IF NOT EXISTS tech_hub_db;
 USE tech_hub_db;
 
 -- Tables
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -13,7 +13,7 @@ CREATE TABLE products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE price_logs (
+CREATE TABLE IF NOT EXISTS price_logs (
     log_id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT,
     old_price DECIMAL(10, 2),
@@ -21,17 +21,18 @@ CREATE TABLE price_logs (
     change_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- The Discount Function (10% Off)
+-- TASK 1: The Discount Function (10% Off)
 DELIMITER //
 CREATE FUNCTION fn_ApplyFlashSale(price DECIMAL(10,2)) 
 RETURNS DECIMAL(10,2)
 DETERMINISTIC
 BEGIN
+    -- 10% reduction means the customer pays 90% of the price
     RETURN price * 0.90;
 END //
 DELIMITER ;
 
--- The Stock Alert Procedure
+-- TASK 2: The Stock Alert Procedure
 DELIMITER //
 CREATE PROCEDURE sp_CheckLowStock(IN p_min_qty INT, OUT p_low_stock_count INT)
 BEGIN
@@ -41,12 +42,13 @@ BEGIN
 END //
 DELIMITER ;
 
--- The Audit Trigger
+-- TASK 3: The Audit Trigger
 DELIMITER //
 CREATE TRIGGER trg_PriceAudit
 AFTER UPDATE ON products
 FOR EACH ROW
 BEGIN
+    -- Only log if the price actually changed
     IF OLD.price <> NEW.price THEN
         INSERT INTO price_logs (product_id, old_price, new_price)
         VALUES (OLD.id, OLD.price, NEW.price);
