@@ -9,15 +9,21 @@
         .detail-img { width: 100%; border-radius: 20px; }
         .detail-info h1 { font-size: 3rem; margin-bottom: 1rem; }
         .detail-info .price-tag { font-size: 1.5rem; color: var(--accent); font-weight: 700; margin-bottom: 2rem; }
-        .detail-info p { color: #6e6e73; margin-bottom: 2rem; }
+        /* Changed from hardcoded gray to use CSS variable for dark mode visibility */
+        .detail-info p { color: var(--text); opacity: 0.8; margin-bottom: 2rem; }
+        
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
     </style>
 </head>
 <body>
     <nav>
         <div class="nav-container">
             <h1 class="logo" onclick="window.location.href='index.html'" style="cursor:pointer">Tech<span>Hub</span></h1>
-            <a href="index.html" style="text-decoration: none; color: inherit;">Back to Shop</a>
-            <button class="remove-btn" onclick="removeProduct()">Remove</button>
+            <div class="nav-links">
+                <a href="#" onclick="toggleTheme()">🌓 Theme</a>
+                <a href="index.html" style="text-decoration: none; color: inherit; font-weight: 500;">Back to Shop</a>
+                <button class="remove-btn" onclick="removeProduct()">Remove Product</button>
+            </div>
         </div>
     </nav>
 
@@ -26,9 +32,21 @@
     </div>
 
     <script>
+        // --- Theme Logic ---
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        function toggleTheme() {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // --- Product Logic ---
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
-        const products = JSON.parse(localStorage.getItem('products'));
+        const products = JSON.parse(localStorage.getItem('products')) || [];
         const product = products.find(p => p.id == id);
 
         if (product) {
@@ -41,11 +59,13 @@
                     <button class="primary-btn" onclick="addToCart(${product.id})">Add to Cart</button>
                 </div>
             `;
+        } else {
+            document.getElementById('product-detail-content').innerHTML = `<h2>Product not found.</h2>`;
         }
 
         function addToCart(id) {
             const product = products.find(p => p.id == id);
-            const cart = JSON.parse(localStorage.getItem('cart'));
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
             cart.push(product);
             localStorage.setItem('cart', JSON.stringify(cart));
             alert("Added to cart!");
@@ -53,19 +73,13 @@
         }
 
         function removeProduct() {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
-
-            let products = JSON.parse(localStorage.getItem('products'));
-
-            // remove the product
-            products = products.filter(p => p.id != id);
-
-            localStorage.setItem('products', JSON.stringify(products));
+            if(!confirm("Are you sure you want to delete this listing?")) return;
+            
+            let allProducts = JSON.parse(localStorage.getItem('products')) || [];
+            allProducts = allProducts.filter(p => p.id != id);
+            localStorage.setItem('products', JSON.stringify(allProducts));
 
             alert("Product removed!");
-
-            // redirect back to shop
             window.location.href = "index.html";
         }
     </script>
