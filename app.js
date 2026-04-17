@@ -13,7 +13,7 @@ function toggleTheme() {
     }
 }
 
-// Initialize "Database" in LocalStorage
+// Initialize LocalStorage
 if (!localStorage.getItem('products')) localStorage.setItem('products', JSON.stringify([]));
 if (!localStorage.getItem('cart')) localStorage.setItem('cart', JSON.stringify([]));
 
@@ -68,7 +68,7 @@ function renderProducts() {
         <div class="product-card" onclick="viewProduct(${p.id})">
             <img src="${p.image}" alt="${p.title}">
             <h3>${p.title}</h3>
-            <p class="price">₱${p.price.toLocaleString()}</p>
+            <p class="price">₱${p.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
         </div>
     `).join('');
 }
@@ -93,7 +93,7 @@ function renderCart() {
         <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
             <div>
                 <h4>${item.title}</h4>
-                <p>₱${item.price.toLocaleString()}</p>
+                <p>₱${item.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
             </div>
             <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
         </div>
@@ -103,10 +103,10 @@ function renderCart() {
     summary.innerHTML = `
         <div style="margin-top:2rem; border-top: 2px solid var(--text); padding-top:1rem;">
             <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:700;">
-                <span>Total</span>
-                <span>₱${total.toLocaleString()}</span>
+                <span>Subtotal</span>
+                <span>₱${total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
             </div>
-            <button class="primary-btn" style="margin-top:1rem;" onclick="openCheckoutModal()">Checkout</button>
+            <button class="primary-btn" style="margin-top:1rem;" onclick="openCheckoutModal()">Proceed to Checkout</button>
         </div>
     `;
     updateCartCount();
@@ -121,10 +121,11 @@ function removeFromCart(index) {
 
 function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem('cart'));
-    document.getElementById('cart-count').innerText = cart.length;
+    const countElement = document.getElementById('cart-count');
+    if(countElement) countElement.innerText = cart.length;
 }
 
-// Checkout & Payment Modals
+// Checkout & Receipt Logic
 function openCheckoutModal() {
     document.getElementById('checkout-modal').style.display = 'flex';
 }
@@ -134,7 +135,6 @@ function closeCheckout() {
 }
 
 function confirmCheckout() {
-    // Get the selected radio button value
     const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
     document.getElementById('checkout-modal').style.display = 'none';
     checkout(selectedPayment);
@@ -142,22 +142,49 @@ function confirmCheckout() {
 
 function checkout(paymentMethod) {
     const cart = JSON.parse(localStorage.getItem('cart'));
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const originalTotal = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    // Applying the 10.10 Flash Sale Logic (10% off)
+    const discountAmount = originalTotal * 0.10;
+    const finalTotal = originalTotal - discountAmount;
+    
     const orderId = Math.floor(Math.random() * 1000000);
 
     let receiptHTML = `
         <h2 style="margin-bottom:1rem;">Receipt</h2>
         <p>Order ID: #${orderId}</p>
         <hr style="margin:1rem 0; border:0; border-top: 1px solid var(--border);">
-        ${cart.map(i => `<p style="display:flex; justify-content:space-between;"><span>${i.title}</span> <span>₱${i.price}</span></p>`).join('')}
+        ${cart.map(i => `
+            <p style="display:flex; justify-content:space-between; font-size: 0.9rem;">
+                <span>${i.title}</span> 
+                <span>₱${i.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </p>
+        `).join('')}
         <hr style="margin:1rem 0; border:0; border-top: 1px solid var(--border);">
-        <h3 style="display:flex; justify-content:space-between;"><span>Total Paid</span> <span>₱${total.toLocaleString()}</span></h3>
-        <p style="margin-top:1rem; color:var(--accent); font-weight: 600;">Status: Paid via ${paymentMethod}</p>
+        
+        <div style="line-height: 1.8;">
+            <p style="display:flex; justify-content:space-between; color: gray;">
+                <span>Original Total:</span> 
+                <span style="text-decoration: line-through;">₱${originalTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </p>
+            <p style="display:flex; justify-content:space-between; color: var(--accent); font-weight: 600;">
+                <span>10.10 Discount (10%):</span> 
+                <span>- ₱${discountAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </p>
+            <h3 style="display:flex; justify-content:space-between; margin-top: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                <span>Amount Paid:</span> 
+                <span>₱${finalTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </h3>
+        </div>
+        
+        <p style="margin-top:1.5rem; color:var(--accent); font-weight: 600; text-align: center;">
+            Paid via ${paymentMethod}
+        </p>
     `;
 
     document.getElementById('receipt-data').innerHTML = receiptHTML;
     document.getElementById('receipt-modal').style.display = 'flex';
-    localStorage.setItem('cart', JSON.stringify([])); // Clear cart
+    localStorage.setItem('cart', JSON.stringify([])); 
 }
 
 function closeReceipt() {
