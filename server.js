@@ -4,12 +4,12 @@ const bodyParser = require('body-parser');
 const app = express();
 
 app.use(bodyParser.json());
-app.use(express.static('./')); // Serves your HTML/CSS/JS files
+app.use(express.static('./')); // Serves HTML/CSS/JS files
 
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',      // Change this to your MySQL username
-    password: '',      // Change this to your MySQL password
+    user: 'root',      
+    password: '',      
     database: 'tech_hub'
 });
 
