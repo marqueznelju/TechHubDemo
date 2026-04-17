@@ -1,3 +1,18 @@
+// Theme Initialization & Logic
+const currentTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+
+function toggleTheme() {
+    let theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+}
+
 // Initialize "Database" in LocalStorage
 if (!localStorage.getItem('products')) localStorage.setItem('products', JSON.stringify([]));
 if (!localStorage.getItem('cart')) localStorage.setItem('cart', JSON.stringify([]));
@@ -59,7 +74,6 @@ function renderProducts() {
 }
 
 function viewProduct(id) {
-    // Demo: Use localStorage to pass data to product page
     window.location.href = `product.html?id=${id}`;
 }
 
@@ -76,7 +90,7 @@ function renderCart() {
     }
 
     container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #eee;">
+        <div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
             <div>
                 <h4>${item.title}</h4>
                 <p>₱${item.price.toLocaleString()}</p>
@@ -87,12 +101,12 @@ function renderCart() {
 
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     summary.innerHTML = `
-        <div style="margin-top:2rem; border-top: 2px solid #000; padding-top:1rem;">
+        <div style="margin-top:2rem; border-top: 2px solid var(--text); padding-top:1rem;">
             <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:700;">
                 <span>Total</span>
                 <span>₱${total.toLocaleString()}</span>
             </div>
-            <button class="primary-btn" style="margin-top:1rem;" onclick="checkout()">Checkout</button>
+            <button class="primary-btn" style="margin-top:1rem;" onclick="openCheckoutModal()">Checkout</button>
         </div>
     `;
     updateCartCount();
@@ -110,8 +124,23 @@ function updateCartCount() {
     document.getElementById('cart-count').innerText = cart.length;
 }
 
-// Checkout & Receipt
-function checkout() {
+// Checkout & Payment Modals
+function openCheckoutModal() {
+    document.getElementById('checkout-modal').style.display = 'flex';
+}
+
+function closeCheckout() {
+    document.getElementById('checkout-modal').style.display = 'none';
+}
+
+function confirmCheckout() {
+    // Get the selected radio button value
+    const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+    document.getElementById('checkout-modal').style.display = 'none';
+    checkout(selectedPayment);
+}
+
+function checkout(paymentMethod) {
     const cart = JSON.parse(localStorage.getItem('cart'));
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const orderId = Math.floor(Math.random() * 1000000);
@@ -119,13 +148,11 @@ function checkout() {
     let receiptHTML = `
         <h2 style="margin-bottom:1rem;">Receipt</h2>
         <p>Order ID: #${orderId}</p>
-        <hr style="margin:1rem 0;">
+        <hr style="margin:1rem 0; border:0; border-top: 1px solid var(--border);">
         ${cart.map(i => `<p style="display:flex; justify-content:space-between;"><span>${i.title}</span> <span>₱${i.price}</span></p>`).join('')}
-        <hr style="margin:1rem 0;">
+        <hr style="margin:1rem 0; border:0; border-top: 1px solid var(--border);">
         <h3 style="display:flex; justify-content:space-between;"><span>Total Paid</span> <span>₱${total.toLocaleString()}</span></h3>
-        <p style="margin-top:1rem; color:green;">Status: Paid via 
-        <img  src="https://images.seeklogo.com/logo-png/52/1/gcash-logo-png_seeklogo-522261.png" alt="Cash" style="width:20px; height:20px;">Cash
-        </p>
+        <p style="margin-top:1rem; color:var(--accent); font-weight: 600;">Status: Paid via ${paymentMethod}</p>
     `;
 
     document.getElementById('receipt-data').innerHTML = receiptHTML;
