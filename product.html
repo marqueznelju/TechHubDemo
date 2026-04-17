@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details | Tech Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .product-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 4rem; }
+        .detail-img { width: 100%; border-radius: 20px; }
+        .detail-info h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .detail-info .price-tag { font-size: 1.5rem; color: var(--accent); font-weight: 700; margin-bottom: 2rem; }
+        .detail-info p { color: #6e6e73; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1 class="logo" onclick="window.location.href='index.html'" style="cursor:pointer">Tech<span>Hub</span></h1>
+            <a href="index.html" style="text-decoration: none; color: inherit;">Back to Shop</a>
+            <button class="remove-btn" onclick="removeProduct()">Remove</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="product-detail-content" class="product-detail-grid"></div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const products = JSON.parse(localStorage.getItem('products'));
+        const product = products.find(p => p.id == id);
+
+        if (product) {
+            document.getElementById('product-detail-content').innerHTML = `
+                <img src="${product.image}" class="detail-img">
+                <div class="detail-info">
+                    <h1>${product.title}</h1>
+                    <div class="price-tag">₱${product.price.toLocaleString()}</div>
+                    <p>${product.desc}</p>
+                    <button class="primary-btn" onclick="addToCart(${product.id})">Add to Cart</button>
+                </div>
+            `;
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id == id);
+            const cart = JSON.parse(localStorage.getItem('cart'));
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert("Added to bag!");
+            window.location.href = 'index.html';
+        }
+
+        function removeProduct() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            let products = JSON.parse(localStorage.getItem('products'));
+
+            // remove the product
+            products = products.filter(p => p.id != id);
+
+            localStorage.setItem('products', JSON.stringify(products));
+
+            alert("Product removed!");
+
+            // redirect back to shop
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

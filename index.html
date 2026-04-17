@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Hub | Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1 class="logo">Tech<span>Hub</span></h1>
+            <div class="nav-links">
+                <a href="#" onclick="showSection('shop')">Shop</a>
+                <a href="#" onclick="showSection('sell')" class="accent-btn">Start Selling</a>
+                <a href="#" onclick="showSection('cart')">Cart (<span id="cart-count">0</span>)</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="shop-section">
+            <header class="section-header">
+                <h2>Explore Products</h2>
+            </header>
+            <div id="product-grid" class="grid">
+                <p class="empty-msg">The shop is currently empty.</p>
+            </div>
+        </section>
+
+        <section id="sell-section" style="display:none;">
+            <div class="form-card">
+                <h2>List a New Product</h2>
+                <div class="input-group">
+                    <label>Product Image</label>
+                    <input type="file" id="prod-image" accept="image/*">
+                </div>
+                <input type="text" id="prod-title" placeholder="Product Title">
+                <input type="number" id="prod-price" placeholder="Price (₱)">
+                <textarea id="prod-desc" placeholder="Description"></textarea>
+                <button class="primary-btn" onclick="handleSell()">Post Product</button>
+            </div>
+        </section>
+
+        <section id="cart-section" style="display:none;">
+            <h2>Your Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <div id="cart-summary" class="summary-card">
+                </div>
+        </section>
+
+        <div id="receipt-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div id="receipt-data"></div>
+                <button class="primary-btn" onclick="closeReceipt()">Done</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
