@@ -11,6 +11,7 @@
         <div class="nav-container">
             <h1 class="logo">Tech<span>Hub</span></h1>
             <div class="nav-links">
+                <a href="#" onclick="toggleTheme()">🌓 Theme</a>
                 <a href="#" onclick="showSection('shop')">Shop</a>
                 <a href="#" onclick="showSection('sell')" class="accent-btn">Start Selling</a>
                 <a href="#" onclick="showSection('cart')">Cart (<span id="cart-count">0</span>)</a>
@@ -46,13 +47,31 @@
             <h2>Your Shopping Cart</h2>
             <div id="cart-items"></div>
             <div id="cart-summary" class="summary-card">
-                </div>
+            </div>
         </section>
+
+        <div id="checkout-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h2>Select Payment Method</h2>
+                <div class="payment-methods">
+                    <div class="payment-option">
+                        <input type="radio" id="pay-gcash" name="payment" value="GCash" checked>
+                        <label for="pay-gcash">GCash</label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" id="pay-cash" name="payment" value="Cash on Delivery">
+                        <label for="pay-cash">Cash on Delivery</label>
+                    </div>
+                </div>
+                <button class="primary-btn" onclick="confirmCheckout()">Confirm Payment</button>
+                <button class="remove-btn" onclick="closeCheckout()" style="margin-top:1rem; width:100%">Cancel</button>
+            </div>
+        </div>
 
         <div id="receipt-modal" class="modal" style="display:none;">
             <div class="modal-content">
                 <div id="receipt-data"></div>
-                <button class="primary-btn" onclick="closeReceipt()">Done</button>
+                <button class="primary-btn" style="margin-top: 1rem;" onclick="closeReceipt()">Done</button>
             </div>
         </div>
     </main>
