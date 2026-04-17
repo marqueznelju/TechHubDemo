@@ -123,7 +123,9 @@ function checkout() {
         ${cart.map(i => `<p style="display:flex; justify-content:space-between;"><span>${i.title}</span> <span>₱${i.price}</span></p>`).join('')}
         <hr style="margin:1rem 0;">
         <h3 style="display:flex; justify-content:space-between;"><span>Total Paid</span> <span>₱${total.toLocaleString()}</span></h3>
-        <p style="margin-top:1rem; color:green;">Status: Paid via PesoWallet</p>
+        <p style="margin-top:1rem; color:green;">Status: Paid via 
+        <img  src="https://images.seeklogo.com/logo-png/52/1/gcash-logo-png_seeklogo-522261.png" alt="Cash" style="width:20px; height:20px;">Cash
+        </p>
     `;
 
     document.getElementById('receipt-data').innerHTML = receiptHTML;
